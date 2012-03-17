@@ -1,0 +1,21 @@
+<h3>Ankiety użytkownika <%= @user.username %></h3>
+<%= link_to "Nowa ankieta", new_questionnaire_path %>
+
+<% if not @questionnaires.nil? %>
+        <table>
+         <tr>
+          <th>Nazwa</th>
+          <th>Podgląd</th>
+          <th>Edytuj</th>
+          <th>Usuń</th>
+        </tr>
+        <% @questionnaires.each do |questionnaire| %>
+        <tr>
+          <td><%= link_to questionnaire.title, questionnaire_path(questionnaire) %></td>
+          <td><%= link_to questionnaire.title, question_path(questionnaire) %></td>
+          <td><%= link_to 'Edytuj', edit_questionnaire_path(questionnaire) %></td>
+          <td><%= link_to 'x', questionnaire, confirm: 'Jesteś pewny?', method: :delete %></td>
+        </tr>
+        <% end %>
+        </table>
+<% end %>

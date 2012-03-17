@@ -1,0 +1,17 @@
+class Answer
+  include Mongoid::Document
+  include Mongoid::Timestamps
+
+  field :answer, type: String
+  
+  # Note this: ids are of class ObjectId
+  field :user_id
+  
+  # Relationships
+  belongs_to :user
+  embedded_in :question
+  
+  # Validations.
+  validates_presence_of :answer
+  
+end

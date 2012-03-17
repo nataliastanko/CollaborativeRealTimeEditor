@@ -1,0 +1,47 @@
+footer.footer{
+  margin-top: 45px;
+  padding: 35px 0 36px;
+  border-top: 1px solid #E5E5E5;
+}
+
+.hidden{
+  display:none;
+}
+
+
+form{
+  fieldset{
+    div.field{
+      padding:10px 0 0 0;
+    }
+  }
+  
+  fieldset.questions{
+    
+    ol{
+      li{
+        margin:5px 0;
+        padding:5px 0;        
+      }
+      
+      li+li{
+        border-top:1px dotted #eee;
+      }
+      
+      a.removeQuestion{
+        position:relative;
+        top:-3px;
+      }
+      
+    }
+    
+  }
+  
+}
+
+div.hero-unit{
+  h1{
+    font-size:42px;
+    margin-bottom:10px;
+  }
+}

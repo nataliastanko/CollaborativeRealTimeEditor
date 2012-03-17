@@ -1,0 +1,3 @@
+$logger = $this->get('logger');
+$logger->info('We just got the logger');
+$logger->err('An error occurred');

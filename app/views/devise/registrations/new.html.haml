@@ -1,0 +1,27 @@
+%div.page-header
+  %h1 Rejestracja
+
+= form_for(resource, :as => resource_name, :url => registration_path(resource_name)) do |f|
+  
+  %div.field
+    = f.label :username, "Nick"
+    = f.text_field :username
+    = f.error_message_on(:username)
+    
+  %div.field
+    = f.label :email, "Email"
+    = f.email_field :email  
+    = f.error_message_on(:email)
+  
+  %div.field
+    = f.label :password, "Hasło"
+    = f.password_field :password
+    = f.error_message_on(:password)
+    
+    %div.field
+      = f.label :password_confirmation, "Powtórz hasło"
+      = f.password_field :password_confirmation
+      = f.error_message_on(:password_confirmation)    
+
+  %div.actions
+    = f.submit "Załóż konto", :class => 'btn btn-primary'

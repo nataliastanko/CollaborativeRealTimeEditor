@@ -1,0 +1,27 @@
+!!!
+%html{:lang => 'pl'}
+  %head
+    %title= controller.action_name
+    %meta{:charset => "utf-8"}
+    %meta{"http-equiv" => "X-UA-Compatible", :content => "IE=edge,chrome=1"}
+    %meta{:name => "viewport", :content => "width=device-width, initial-scale=1, maximum-scale=1"}
+    = stylesheet_link_tag :application, :media => "all"
+    = javascript_include_tag :application
+    = csrf_meta_tags
+  %body{:class => params[:controller]}
+    %div.container
+      = render 'layouts/header'
+      %section.content{:role => "main"}
+        - flash.each do |name, msg|
+          - if name == :notice
+            %div.alert.alert-info
+              %a.close ×
+              = raw msg              
+          - else
+            %div.alert.alert-error
+              %a.close ×          
+              = raw msg
+          
+        = yield
+    
+      = render 'layouts/footer'

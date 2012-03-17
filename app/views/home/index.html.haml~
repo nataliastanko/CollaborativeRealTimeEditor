@@ -1,0 +1,8 @@
+%div.hero-unit
+  %h1 Współdzielenie i&nbsp;edycja dokumentów w&nbsp;chmurze
+  %p Współdzielony edytor czasu rzeczywistego
+  
+  %ul
+    - @questionnaires.each do |questionnaire|
+      %li
+        = link_to questionnaire.title, questionnaire_path(questionnaire)

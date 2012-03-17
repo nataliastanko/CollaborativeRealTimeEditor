@@ -1,0 +1,24 @@
+%div.page-header
+  %h1 Logowanie
+
+= form_for(resource, :as => resource_name, :url => session_path(resource_name)) do |f|
+  
+  %div.field
+    = f.label :email, "Email"
+    = f.email_field :email
+  
+  %div.field
+    = f.label :password, "Hasło"
+    = f.password_field :password
+
+  - if devise_mapping.rememberable?
+    %div.field
+      %label.checkbox
+        = f.check_box :remember_me 
+        Zapamiętaj mnie
+
+  %div.actions
+    = f.submit "Zaloguj się", :class => 'btn btn-primary'
+
+
+= render :partial => "devise/shared/links"
