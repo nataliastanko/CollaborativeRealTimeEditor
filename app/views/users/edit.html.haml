@@ -13,11 +13,6 @@
     = f.email_field :email  
     = f.error_message_on(:email)
   
-  %div.field
-    = f.label :age, "Wiek"
-    = f.text_field :age, :class => "span1"
-    = f.error_message_on(:age)
-    
   %div.actions
     = f.submit "Zapisz zmiany", :class => 'btn btn-primary'
 

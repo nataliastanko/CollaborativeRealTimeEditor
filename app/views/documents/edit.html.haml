@@ -1,0 +1,14 @@
+%div.page-header
+  %h1 Edycja dokumentu
+
+= form_for(@document) do |f|
+  
+  %div.field
+    = f.label :title, "Tytuł"
+    = f.text_field :title
+    = f.error_message_on(:title)
+
+  %div.actions
+    = f.submit "Zapisz zmiany", :class => 'btn'
+
+%div.contentEditor{"contentEditable" => true}

@@ -1,0 +1,26 @@
+%div.page-header
+  %h2 Dokumenty
+  =link_to "Nowy dokument", new_document_path, :class => 'btn'
+
+- if @documents.blank?
+  %p Brak wyników
+- else
+
+  %table.table.table-bordered.table-striped
+    %thead
+      %tr
+        %th Tytuł
+        %th Data utworzenia
+        %th Data modyfikacji
+        %th Właściciel
+        %th Edytuj
+        %th Usuń
+    %tbody
+      - @documents.each do |document|
+        %tr
+          %td= link_to document.username, document
+          %td= document.created_at.to_formatted_s :short
+          %td= document.updated_at.to_formatted_s :short
+          %td= document.user.fullname
+          %td= link_to 'Edytuj', edit_document_path(document)
+          %td= link_to 'x', document, confirm: 'Jesteś pewny?', method: :delete

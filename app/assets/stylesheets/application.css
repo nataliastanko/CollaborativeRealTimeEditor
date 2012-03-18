@@ -3,13 +3,17 @@
  * and any sub-directories. You're free to add application-wide styles to this file and they'll appear at
  * the top of the compiled file, but it's generally better to create a new file per style scope.
  *= require_self
- *= require twitter/bootstrap
- * require twitter/bootstrap_responsive
+ *= require bootstrap_and_overrides
  *= require layout
- * require_tree . 
 */
 
 body > .container{
   padding:20px 0;
+}
+
+div.contentEditor {
+  border: 1px #ccc solid;
+  min-height: 100px;
+  padding: 10px;
 }
 

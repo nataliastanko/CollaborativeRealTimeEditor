@@ -35,18 +35,17 @@ class DocumentsController < ApplicationController
   
   def new
     @document = Document.new
-    @document.questions.build #create one object
   end
   
   def create
     @document = Document.new(params[:document])
     @document.user = current_user
     if @document.save
-      flash[:notice] = "Dodano ankietę."
-      redirect_to user_documents_path(current_user)
+      flash[:notice] = "Utworzono dokument."
+      redirect_to edit_document_path(@document)
       #redirect_to action: 'index'
     else
-      flash.now[:error] = "Nie można zapisać tego dokumentu"
+      flash.now[:error] = "Nie można utworzyć tego dokumentu"
       render action: 'new'
     end
   end
