@@ -3,7 +3,7 @@ require 'socky/server'
 options = {
   :debug => true,
   :applications => {
-    :my_app => 'my_secret',
+    :editor => '90fsbsgf64554cvxcvcxvSS',
   }
 }
 

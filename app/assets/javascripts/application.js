@@ -1,56 +1,19 @@
 //= require jquery
 //= require jquery_ujs
 //= require twitter/bootstrap
+//= require socky/socky.min.js
 //= require_self
+
+
+var socky;
 
 jQuery(document).ready(function($){
 
-  $('.addQuestion').on('click', addQuestionField);
+  if ($('#editor').length>0) {
+    socky = new Socky.Client('ws://localhost:3001/websocket/editor');
+    channel = socky.subscribe("channel1");
+  }
 
-  $(document).on('click', '.removeQuestion', removeField); /* live */
-  $(document).on('click', '.removeExistingQuestion', removeExistingField);
-  
+  //socky.unsubscribe("channel1");
+
 })
-
-function removeField(event){
-  event.preventDefault();
-  $(this).parents('.fieldQuestion').fadeOut('fast',function(){$(this).remove()})
-}
-
-function removeExistingField(event){
-  event.preventDefault();
-  row = $(this).parents('.fieldQuestion');
-  row.next().remove();
-  row.fadeOut('fast',function(){$(this).remove()})
-}
-
-function addQuestionField(event){
-  event.preventDefault();
-  
-  var fields,i,template,reg;
-  
-  // get number of field (either as rel attribute or as count of fields)
-  fields = $('fieldset.questions li.fieldQuestion');
-  i = parseInt($('fieldset.questions').attr('rel') || fields.length)
-  
-  // prepare template
-  template = '<li class="fieldQuestion clearfix" id="question-row-'+i+'">' + $('fieldset.questions .question-template').html() + '</li>';
-  
-  
-  // replace ____ with ''
-  reg = new RegExp("____", "g")
-  template = template.replace(reg, '');
-
-  // replace #NUM# with propper i value
-  reg = new RegExp("NUM", "g");  
-  template = template.replace(reg, i);
-  
-  
-  $('fieldset.questions ol').append(template);
-  var last_field = $('fieldset.questions li.fieldQuestion').last();
-  last_field.hide().slideDown()
-  last_field.find('input').val('')
-  
-  $('fieldset.questions').attr({'rel':i+1})
-}
-

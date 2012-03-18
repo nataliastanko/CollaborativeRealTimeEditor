@@ -11,9 +11,9 @@ body > .container{
   padding:20px 0;
 }
 
-div.contentEditor {
+p.contentEditor {
   border: 1px #ccc solid;
-  min-height: 30px;
+  min-height: 100px;
   padding: 10px;
 }
 

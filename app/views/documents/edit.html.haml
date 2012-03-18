@@ -11,4 +11,10 @@
   %div.actions
     = f.submit "Zapisz zmiany", :class => 'btn'
 
-%div.contentEditor{"contentEditable" => true}
+%div#editor
+  -if @document.lines.blank?
+    %p.contentEditor{"contentEditable" => true}
+  -else
+    - @document.lines.each do |line|
+      %p.contentEditor{"contentEditable" => true}
+        =line.text
