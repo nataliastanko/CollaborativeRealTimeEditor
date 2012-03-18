@@ -4,6 +4,8 @@ gem 'rails'
 
 gem 'haml-rails'
 
+gem 'socky-authenticator'
+
 group :assets do
   gem 'sass-rails',   '~> 3.1.5'
   gem 'uglifier', '>= 1.0.3'
