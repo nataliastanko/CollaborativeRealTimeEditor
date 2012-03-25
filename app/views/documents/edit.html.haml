@@ -1,6 +1,8 @@
 %div.page-header
   %h1 Edycja dokumentu
 
+%p Zalogowany jako #{current_user.username}
+
 = form_for(@document) do |f|
   
   %div.field
@@ -20,3 +22,5 @@
         =line.text
 
   %a#submit.btn{:href => "#"} Zapisz
+
+%div#buffer

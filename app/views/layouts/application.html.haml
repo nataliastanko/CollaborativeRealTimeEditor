@@ -8,6 +8,9 @@
     = stylesheet_link_tag :application, :media => "all"
     = javascript_include_tag :application
     = csrf_meta_tags
+    - if current_user
+      :javascript
+        var current_user_id = "#{current_user.id}";
   %body{:class => params[:controller]}
     %div.container
       = render 'layouts/header'

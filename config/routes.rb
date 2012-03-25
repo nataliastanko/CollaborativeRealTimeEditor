@@ -3,10 +3,10 @@ QuestionnaireApp::Application.routes.draw do
 
   match 'socky/auth' => 'sockies#auth'
 
-  resources :documents, :path => "dokumenty"
+  resources :documents
 
-  resources :users, :path => "uzytkownicy" do
-    resources :documents, :path => "dokumenty"
+  resources :users do
+    resources :documents
   end
 
   # route for devise users

@@ -18,7 +18,7 @@
     %tbody
       - @documents.each do |document|
         %tr
-          %td= link_to document.username, document
+          %td= link_to document.title, document
           %td= document.created_at.to_formatted_s :short
           %td= document.updated_at.to_formatted_s :short
           %td= document.user.fullname
