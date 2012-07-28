@@ -6,11 +6,10 @@
     %meta{"http-equiv" => "X-UA-Compatible", :content => "IE=edge,chrome=1"}
     %meta{:name => "viewport", :content => "width=device-width, initial-scale=1, maximum-scale=1"}
     = stylesheet_link_tag :application, :media => "all"
-    = javascript_include_tag :application
     = csrf_meta_tags
     - if current_user
       :javascript
-        var current_user_id = "#{current_user.id}";
+        var uid = "#{current_user.id}";
   %body{:class => params[:controller]}
     %div.container
       = render 'layouts/header'
@@ -28,3 +27,5 @@
         = yield
     
       = render 'layouts/footer'
+    - if content_for? :javascripts
+      = yield :javascripts

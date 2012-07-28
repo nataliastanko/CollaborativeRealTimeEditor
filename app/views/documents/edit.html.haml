@@ -13,8 +13,12 @@
   %div.actions
     = f.submit "Zapisz zmiany", :class => 'btn'
 
-%div{id: "editor", data: {href: update_line_path(@document.id)} }
+%div{id: "editor", data: {update: update_line_path(@document.id), new: new_line_path(@document.id)} }
   - @document.lines.each do |line|
-    %p.contentEditor{contentEditable: true, id: line.id}= line.text
+    %p.contentEditor{contentEditable: true, id: "line-#{line.id}"}= line.text
 
 %div#buffer
+
+
+- content_for :javascripts do
+  = javascript_include_tag :application

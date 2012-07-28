@@ -5,3 +5,37 @@ TODO
 
 
 rozdzielic na kanały dokumenty 1 dokument to 1 kanał, np id dokumentu to kanal
+
+edycja ttulu doc [rzez ajax
+
+w Editor przechowywac ktory paragraf ma focus
+i w jakim moejscu
+
+odswiezanie nowej linii
+kanały
+autoryzacja usera
+
+dodac przypadek dodawania linii na poczatku dokumentu
+
+
+koncepcyjny algo wypisywania dokumentu
+
+array = array();
+    foreach (document.lines as line){
+      array[line.id] = line;
+    }
+    
+    array
+    [id] = obiekt
+    
+    line =array.first
+    line.text
+    
+    while (line= line[next]) {
+      line.text
+    }
+    
+    
+    
+    while (line = line.next)
+      line.text

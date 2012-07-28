@@ -1,43 +1,73 @@
 // initialize variables
-var socky, channel, editor, updater;
+var socky, channel, editor = null;
 var dmp = new diff_match_patch();
 
 function saveChanges(lineId, text) {
     $.ajax({
-            type: "post",
-            url: $('#editor').data('href'),
-            data: {id:lineId, text: text},
-            dataType: "json",
-            success: function(data) {console.log("OK")},
-            error: function(data) {}
-      });
+      type: "post",
+      url: $('#editor').data('update'),
+      data: {id:lineId, text: text},
+      dataType: "json",
+      success: function(data) {console.log("OK")},
+      error: function(data) {}
+    });
 }
 
-function startEditor(){
-  
+function initializeEditor() {
   // initialize Socky client to communicate over WebSockets
   initializeSocky();
-  
-  // bind jquery events
-  updater = window.setInterval(invokeEditorUpdate, 5000);// 5 seconds
+}
 
-  var uid = new Date().getTime() //current_user_id  // defined in layout
-  var initialBuffer = new Buffer([new Segment(uid, $('.contentEditor').text())]);
+function deactivateEditor() {
+  window.clearInterval(editor.updater);
+  editor = null;
+}
+
+function activateEditor(p) {
+  var initialBuffer = new Buffer([new Segment(uid, p.text())]);
   
   editor = {
-    area: $('.contentEditor'),
-    currentContent: $('.contentEditor').text(),
-    previousContent: $('.contentEditor').text(),
+    area: p,
+    lineId: p.attr('id').replace('line-',''),
+    currentContent: p.text(),
+    previousContent: p.text(),
+    state: new State(initialBuffer, new Vector()),
+    userId: uid,
+    updater: null
+  }
+
+  // initialize 
+  editor.previousContent = p.text();
+  // bind jquery events
+  editor.updater = window.setInterval(invokeEditorUpdate, 5000);// 5 seconds
+}
+
+function getEditor(p) {
+
+  var initialBuffer = new Buffer([new Segment(uid, p.text())]);
+  
+  var remoteEditor = {
+    area: p,
+    lineId: p.attr('id').replace('line-',''),
+    currentContent: p.text(),
+    previousContent: p.text(),
     state: new State(initialBuffer, new Vector()),
     userId: uid
   }
 
   // initialize 
-  editor.previousContent = $('.contentEditor').text();
+  remoteEditor.previousContent = p.text();
+  
+  if (editor!= null && remoteEditor.lineId == editor.lineId){
+    return editor;
+  } else{
+    return remoteEditor;
+  }
+  
 }
 
 // initialize Socky client to communicate over WebSockets
-function initializeSocky(){
+function initializeSocky() {
 
     socky = new Socky.Client('ws://localhost:3001/websocket/editor');
     channel = socky.subscribe("presence-editor-channel", { read: true, write: true, data: { login: 'test' } });
@@ -64,9 +94,9 @@ function sockyReceiveCommand(data) {
 function invokeEditorUpdate() {
 
     //event.preventDefault();
-
+    
     // grab current content from editor
-    editor.currentContent = $('.contentEditor').text();
+    editor.currentContent = editor.area.text();
 
     // Call Diff-Match-Patch to obtain a list of differences.
     var diffs = dmp.diff_main(editor.previousContent, editor.currentContent);   
@@ -103,7 +133,7 @@ function invokeEditorUpdate() {
   			var request = new DoRequest(editor.userId, editor.state.vector, operation);
 
 	  		// Post the request to the socky server
-        sockySendCommand({command: "insert", params: [editor.userId, request.vector.toString(), offset, diffText]});
+        sockySendCommand({command: "insert", params: [editor.userId, request.vector.toString(), offset, diffText], lineId: editor.lineId});
 
 	  		// Execute the request locally to update the internal buffer.        
 	  		editor.state.execute(request);
@@ -118,54 +148,57 @@ function invokeEditorUpdate() {
 	  		var operation = new Operations.Delete(offset, buffer);
 	  		var request = new DoRequest(editor.userId, editor.state.vector, operation);
 
-	  		sockySendCommand({command: "delete", params: [editor.userId, request.vector.toString(), offset, diffText.length]});
+	  		sockySendCommand({command: "delete", params: [editor.userId, request.vector.toString(), offset, diffText.length], lineId: editor.lineId});
 	  		editor.state.execute(request);
 	  	} else {
 	  		offset += diffText.length;
 	  	}
 	  }
 
-  	editor.previousContent = editor.currentContent = $('.contentEditor').text();
+  	editor.previousContent = editor.currentContent = editor.area.text();
 	  //$("#buffer").html(editor.state.buffer.toHTML());
 	  
-	  lineId = $('.contentEditor').attr('id');
+	  lineId = editor.lineId;
     saveChanges(lineId, editor.currentContent);
 }
 
-function processReceivedCommand(data){
+function processReceivedCommand(data) {
+  var currentEditor = getEditor($('#line-' + data.lineId));
+  console.log("Editor: ");
+  console.log(currentEditor)
   if(data.command == "insert") {
-			if (data.params[0] != editor.userId) {
+			//if (data.params[0] != currentEditor.userId) {
 				// We have received an insert request from another user.
 
 				var buffer = new Buffer([new Segment(data.params[0], data.params[3])]);
 				var operation = new Operations.Insert(data.params[2], buffer);
 				var request = new DoRequest(data.params[0], new Vector(data.params[1]), operation);
         
-				var executedRequest = editor.state.execute(request); // state.execute - OT
-				updateControl(executedRequest);
-			}
+				var executedRequest = currentEditor.state.execute(request); // state.execute - OT
+				updateControl(executedRequest, currentEditor);
+			//}
 	} else if (data.command == "delete") {
-			if (data.params[0] != editor.userId) {
+			//if (data.params[0] != currentEditor.userId) {
 				// We have received a delete request from another user.
 
 				var operation = new Operations.Delete(data.params[2], data.params[3]);
 				var request = new DoRequest(data.params[0], new Vector(data.params[1]), operation);
 
-				var executedRequest = editor.state.execute(request);
-				updateControl(executedRequest);
-			}
+				var executedRequest = currentEditor.state.execute(request);
+				updateControl(executedRequest, currentEditor);
+			//}
 	}
 }
 
 // set sursor on end
-function updateControl(executedRequest){
+function updateControl(executedRequest, editor){
 		if (executedRequest.operation instanceof Operations.Insert) {
 
 			// Backup cursor position
 			var selectionStart = editor.area.selectionStart;
 			var selectionEnd = editor.area.selectionEnd;
 
-			updateFromBuffer();
+			updateFromBuffer(editor);
 
 			var textLength = executedRequest.operation.text.getLength();
 
@@ -186,7 +219,7 @@ function updateControl(executedRequest){
 			var selectionStart = editor.area.selectionStart;
 			var selectionEnd = editor.area.selectionEnd;
 
-			updateFromBuffer();
+			updateFromBuffer(editor);
 
 			function processDeleteOperation(operation) {
 				if (operation instanceof Operations.Split) {
@@ -215,18 +248,41 @@ function updateControl(executedRequest){
 		}  
 }
 
-function updateFromBuffer() {
+function updateFromBuffer(editor) {
   editor.previousContent = editor.currentContent = editor.state.buffer.toString();
 	//$("#buffer").html(editor.state.buffer.toHTML());
   // set the current value to editor
-  $('.contentEditor').text(editor.currentContent);
+  editor.area.text(editor.currentContent);
+}
+
+function onKeyPress(event) {
+  if (event.keyCode == 13) {
+  data = {};
+  p = $(this);
+  if (p.hasClass('contentEditor')) {
+   data.prevId = p.attr('id').replace('line-','')
+  }
+    $.ajax({
+        type: "post",
+        url: $('#editor').data('new'),
+        data: data,
+        dataType: "json",
+        success: function(line) {
+          '<p id="line-'+ line.id +'" class="contentEditor" contenteditable=""></p>';
+        },
+        error: function(data) {}
+    });
+  }
 }
 
 // start application
-jQuery(document).ready(function($){
-
-  if ($('#editor').length>0) {
-    startEditor();
-  }
-
+jQuery(document).ready(function($) {
+  initializeEditor();
+  //jquery 1.7
+  $(document).on('blur', '.contentEditor', function() {deactivateEditor()});
+  $(document).on('focus', '.contentEditor', function() {activateEditor($(this))});
+  $(document).on('keypress', '.contentEditor', onKeyPress);
+  // blur sie konczy
+  
 });
+
