@@ -63,10 +63,10 @@ class DocumentsController < ApplicationController
   def update
     respond_to do |format|
      if @document.update_attributes(params[:document])
-        format.html { redirect_to document_questions_path(@document), notice: "Zapisano zmiany dokumetu!" }
+        #format.html { redirect_to document_questions_path(@document), notice: "Zapisano zmiany dokumetu!" }
         format.json { head :ok }
      else
-        format.html { render action: "edit" }
+        #format.html { render action: "edit" }
         format.json { render json: @document.errors, status: :unprocessable_entity }
      end
    end 

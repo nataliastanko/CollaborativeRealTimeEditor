@@ -42,7 +42,7 @@ class DocumentsController < ApplicationController
     @document.user = current_user
     if @document.save
       flash[:notice] = "Utworzono dokument."
-      redirect_to edit_document_path(document)
+      redirect_to edit_document_path(@document)
       #redirect_to action: 'index'
     else
       flash.now[:error] = "Nie można utworzyć tego dokumentu"
