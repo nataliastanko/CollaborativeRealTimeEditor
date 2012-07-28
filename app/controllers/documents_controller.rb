@@ -40,6 +40,7 @@ class DocumentsController < ApplicationController
   def create
     @document = Document.new(params[:document])
     @document.user = current_user
+    @document.lines << Line.new # 1 linia w kolekcji, gwarantuje transakcję, linia sie zapisze, jesli dokument się zapisze
     if @document.save
       flash[:notice] = "Utworzono dokument."
       redirect_to edit_document_path(@document)
@@ -60,6 +61,7 @@ class DocumentsController < ApplicationController
     end
   end
   
+  # change title
   def update
     respond_to do |format|
      if @document.update_attributes(params[:document])
@@ -71,7 +73,7 @@ class DocumentsController < ApplicationController
      end
    end 
   end
-
+  
   private 
   
   def find_document

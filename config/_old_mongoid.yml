@@ -1,0 +1,20 @@
+development:
+  host: localhost
+  database: real_time_editor_development
+
+test:
+  host: localhost
+  database: real_time_editor_test
+
+# set these environment variables on your prod server
+production:
+  host: 127.0.0.1
+  port: 27017
+  username: anithaly
+  password: super_secure_password_x54
+  database: real_time_editor
+  # slaves:
+  #   - host: slave1.local
+  #     port: 27018
+  #   - host: slave2.local
+  #     port: 27019

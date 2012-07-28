@@ -1,0 +1,7 @@
+TODO 
+- działanie na wielu paragrafach 
+- zintegrowac login autoryzację railsowa z aplikacją socky 
+(websocket robi najpierw request do akcji w kontrolerze w mojej aplikacji (sockycontroller), powinien zwrocic usera)
+
+
+rozdzielic na kanały dokumenty 1 dokument to 1 kanał, np id dokumentu to kanal

@@ -1,0 +1,10 @@
+Praca wymagała szukania wielu informacji na grupach dyskusyjnych
+przegladania kodu istniejacych edytorow open source
+sciagniecia i zainstalowania go
+poszerzenia swojej wiedzy w zakresie mongodb i webcoscket
+
+websocket wysyla zmiany do ckientow, wszystkich
+
+tworzymy dokument - i zawsze jedna linie, zeby miec referencje, id, zeby wiedziec co updateowac
+
+dzieki embedded wypiusanie wszystkich lines dokumentu odbywa sie szybciej niz np mysqlem pobranie k

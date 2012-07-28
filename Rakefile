@@ -4,4 +4,4 @@
 
 require File.expand_path('../config/application', __FILE__)
 
-QuestionnaireApp::Application.load_tasks
+RealTimeEditorApp::Application.load_tasks

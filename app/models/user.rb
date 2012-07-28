@@ -7,8 +7,8 @@ class User
   # DEVISE 2.0 requires this fields defined explicitly for mongoid 
     
   ## Database authenticatable
-  field :email,              :type => String, :null => false
-  field :encrypted_password, :type => String, :null => false
+  field :email,              type: String
+  field :encrypted_password, type: String
   
   ## Recoverable
   field :reset_password_token,   :type => String
@@ -18,11 +18,11 @@ class User
   field :remember_created_at, :type => Time
   
   ## Trackable
-  field :sign_in_count,      :type => Integer
-  field :current_sign_in_at, :type => Time
-  field :last_sign_in_at,    :type => Time
-  field :current_sign_in_ip, :type => String
-  field :last_sign_in_ip,    :type => String
+  field :sign_in_count,      type: Integer
+  field :current_sign_in_at, type: Time
+  field :last_sign_in_at,    type: Time
+  field :current_sign_in_ip, type: String
+  field :last_sign_in_ip,    type: String
                      
   field :username, type: String
   field :email, type: String
@@ -32,8 +32,8 @@ class User
 
   
   # Validations
-  validates_presence_of :username, :email
-  validates_uniqueness_of :username, :email, :case_sensitive => false
+  validates_presence_of :username, :email, :encrypted_password
+  validates_uniqueness_of :username, :email, case_sensitive: false
   attr_accessible :email, :password, :password_confirmation, :remember_me, :username, :age
   
   def fullname

@@ -13,14 +13,9 @@
   %div.actions
     = f.submit "Zapisz zmiany", :class => 'btn'
 
-%div#editor
-  -if @document.lines.blank?
-    %p.contentEditor{"contentEditable" => true}
-  -else
-    - @document.lines.each do |line|
-      %p.contentEditor{"contentEditable" => true}
-        =line.text
-
-  %a#submit.btn{:href => "#"} Zapisz
+%div{id: "editor", data: {href: update_line_path(@document.id)} }
+  - @document.lines.each do |line|
+    %p.contentEditor{contentEditable: true, id: line.id}
+      =line.text
 
 %div#buffer
