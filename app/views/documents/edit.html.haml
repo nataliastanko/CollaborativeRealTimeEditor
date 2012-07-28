@@ -15,7 +15,6 @@
 
 %div{id: "editor", data: {href: update_line_path(@document.id)} }
   - @document.lines.each do |line|
-    %p.contentEditor{contentEditable: true, id: line.id}
-      =line.text
+    %p.contentEditor{contentEditable: true, id: line.id}= line.text
 
 %div#buffer

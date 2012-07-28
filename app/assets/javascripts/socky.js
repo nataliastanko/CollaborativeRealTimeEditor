@@ -21,16 +21,19 @@ function startEditor(){
   // bind jquery events
   updater = window.setInterval(invokeEditorUpdate, 5000);// 5 seconds
 
+  var uid = new Date().getTime() //current_user_id  // defined in layout
+  var initialBuffer = new Buffer([new Segment(uid, $('.contentEditor').text())]);
+  
   editor = {
     area: $('.contentEditor'),
     currentContent: $('.contentEditor').text(),
     previousContent: $('.contentEditor').text(),
-    state: new State(),
-    userId: new Date().getTime() //current_user_id  // defined in layout
+    state: new State(initialBuffer, new Vector()),
+    userId: uid
   }
 
   // initialize 
-  updateFromBuffer(false);
+  editor.previousContent = $('.contentEditor').text();
 }
 
 // initialize Socky client to communicate over WebSockets
@@ -57,6 +60,7 @@ function sockyReceiveCommand(data) {
   processReceivedCommand(data);
 }
 
+// this function is called for browser that send changes (or not)
 function invokeEditorUpdate() {
 
     //event.preventDefault();
@@ -66,6 +70,15 @@ function invokeEditorUpdate() {
 
     // Call Diff-Match-Patch to obtain a list of differences.
     var diffs = dmp.diff_main(editor.previousContent, editor.currentContent);   
+    //return if no changes
+    //[[0, ""]]
+    if (diffs.length == 1 && diffs[0][0] == 0) {
+      console.log("no changes");
+      return;
+    }
+    console.log(diffs);
+    
+    // każda roznca wykryta jest tablicą w diff, pierwszy elem okresla czy to insert 1 , del -1 czy bez zmian 0
      
     // beginning of the text
     var offset = 0; 
@@ -114,6 +127,9 @@ function invokeEditorUpdate() {
 
   	editor.previousContent = editor.currentContent = $('.contentEditor').text();
 	  //$("#buffer").html(editor.state.buffer.toHTML());
+	  
+	  lineId = $('.contentEditor').attr('id');
+    saveChanges(lineId, editor.currentContent);
 }
 
 function processReceivedCommand(data){
@@ -149,7 +165,7 @@ function updateControl(executedRequest){
 			var selectionStart = editor.area.selectionStart;
 			var selectionEnd = editor.area.selectionEnd;
 
-			updateFromBuffer(true);
+			updateFromBuffer();
 
 			var textLength = executedRequest.operation.text.getLength();
 
@@ -170,7 +186,7 @@ function updateControl(executedRequest){
 			var selectionStart = editor.area.selectionStart;
 			var selectionEnd = editor.area.selectionEnd;
 
-			updateFromBuffer(true);
+			updateFromBuffer();
 
 			function processDeleteOperation(operation) {
 				if (operation instanceof Operations.Split) {
@@ -199,15 +215,11 @@ function updateControl(executedRequest){
 		}  
 }
 
-function updateFromBuffer(save) {
+function updateFromBuffer() {
   editor.previousContent = editor.currentContent = editor.state.buffer.toString();
 	//$("#buffer").html(editor.state.buffer.toHTML());
   // set the current value to editor
   $('.contentEditor').text(editor.currentContent);
-  if (save) {
-    lineId = $('.contentEditor').attr('id');
-    saveChanges(lineId, editor.currentContent);
-  }
 }
 
 // start application
