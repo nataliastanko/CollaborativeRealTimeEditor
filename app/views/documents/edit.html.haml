@@ -13,9 +13,11 @@
   %div.actions
     = f.submit "Zapisz zmiany", :class => 'btn'
 
-%div{id: "editor", data: {update: update_line_path(@document.id), new: new_line_path(@document.id)} }
-  - @document.lines.each do |line|
-    %p.contentEditor{contentEditable: true, id: "line-#{line.id}"}= line.text
+%div{id: "editor", data: {update: update_line_path(@document.id), new: new_line_path(@document.id), destroy: destroy_line_path(@document.id)} }
+  - line = @document.lines.first
+  - while line != nil do
+    %div.contentEditor{contentEditable: true, id: "line-#{line.id}"}= line.text
+    - line = line.next
 
 %div#buffer
 

@@ -11,9 +11,28 @@ body > .container{
   padding:20px 0;
 }
 
-p.contentEditor {
+div.contentEditor {
   border: 1px #ccc solid;
-  min-height: 10px;
+  min-height: 15px;
   padding: 10px;
+  margin: 0 0 10px 0;
+  outline: none;
+  white-space: pre;
 }
 
+footer.footer{
+  margin-top: 45px;
+  padding: 35px 0 36px;
+  border-top: 1px solid #E5E5E5;
+}
+
+.hidden {
+  display:none;
+}
+
+div.hero-unit{
+  h1{
+    font-size:42px;
+    margin-bottom:10px;
+  }
+}

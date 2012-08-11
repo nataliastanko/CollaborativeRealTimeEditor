@@ -1,5 +1,6 @@
 // initialize variables
-var socky, channel, editor = null;
+var socky, channel;
+var editor = null;
 var dmp = new diff_match_patch();
 
 function saveChanges(lineId, text) {
@@ -19,46 +20,55 @@ function initializeEditor() {
 }
 
 function deactivateEditor() {
-  window.clearInterval(editor.updater);
-  editor = null;
+  // check for update before blur and disabling observer
+  invokeEditorUpdate();
+  if(editor != null){
+    window.clearInterval(editor.updater);
+    editor = null;
+  }
 }
 
-function activateEditor(p) {
-  var initialBuffer = new Buffer([new Segment(uid, p.text())]);
+// this function refresh editor state after executing operations
+function updateState(){
+  initialBuffer = new Buffer([new Segment(editor.userId, editor.currentContent)]);
+  editor.state = new State(initialBuffer, new Vector())
+}
+
+function activateEditor(div) {
+  var initialBuffer = new Buffer([new Segment(uuid, div.text())]);
   
   editor = {
-    area: p,
-    lineId: p.attr('id').replace('line-',''),
-    currentContent: p.text(),
-    previousContent: p.text(),
-    state: new State(initialBuffer, new Vector()),
-    userId: uid,
-    updater: null
+    area: div,
+    lineId: div.attr('id').replace('line-',''),
+    currentContent: div.text(),
+    previousContent: div.text(),
+    state: new State(initialBuffer),
+    userId: uuid,
+    updater: null,
+    type: "local"
   }
 
   // initialize 
-  editor.previousContent = p.text();
+  editor.previousContent = div.text();
   // bind jquery events
-  editor.updater = window.setInterval(invokeEditorUpdate, 5000);// 5 seconds
+  editor.updater = window.setInterval(invokeEditorUpdate, 500); //0,5 seconds
 }
 
-function getEditor(p) {
+function getEditor(div) {
 
-  var initialBuffer = new Buffer([new Segment(uid, p.text())]);
+  var initialBuffer = new Buffer([new Segment(uuid, div.text())]);
   
   var remoteEditor = {
-    area: p,
-    lineId: p.attr('id').replace('line-',''),
-    currentContent: p.text(),
-    previousContent: p.text(),
+    area: div,
+    lineId: div.attr('id').replace('line-',''),
+    currentContent: div.text(),
+    previousContent: div.text(),
     state: new State(initialBuffer, new Vector()),
-    userId: uid
+    userId: uuid,
+    type: "remote"
   }
-
-  // initialize 
-  remoteEditor.previousContent = p.text();
   
-  if (editor!= null && remoteEditor.lineId == editor.lineId){
+  if (editor != null && remoteEditor.lineId == editor.lineId){
     return editor;
   } else{
     return remoteEditor;
@@ -93,7 +103,8 @@ function sockyReceiveCommand(data) {
 // this function is called for browser that send changes (or not)
 function invokeEditorUpdate() {
 
-    //event.preventDefault();
+    // fix to prevent accidental focus drop, when switching window
+    if(editor == null || typeof(editor) == undefined) return;
     
     // grab current content from editor
     editor.currentContent = editor.area.text();
@@ -106,12 +117,13 @@ function invokeEditorUpdate() {
       console.log("no changes");
       return;
     }
-    console.log(diffs);
-    
+     
     // każda roznca wykryta jest tablicą w diff, pierwszy elem okresla czy to insert 1 , del -1 czy bez zmian 0
      
     // beginning of the text
     var offset = 0; 
+    
+    var buffer, operation, request;
 
     // process diffs to create operational transformations
 
@@ -124,18 +136,18 @@ function invokeEditorUpdate() {
 	  	if (diffType == 1) {// Text has been inserted. Create an insert request out of the change.
         // Creates a new Segment instance given a user ID and a string.
         // text
-  			var buffer = new Buffer([new Segment(editor.userId, diffText)]);
+  			buffer = new Buffer([new Segment(editor.userId, diffText)]);
 
         // Create new Insert Operation instance for given segment at initial offset
-  			var operation = new Operations.Insert(offset, buffer); // offset - place from
+  			operation = new Operations.Insert(offset, buffer); // offset - place from
   
-        // Create new operation request with current user, vector an given operation
-  			var request = new DoRequest(editor.userId, editor.state.vector, operation);
+        // Create new operation request with current user, vector and given operation
+  			request = new DoRequest(editor.userId, editor.state.vector, operation);
 
 	  		// Post the request to the socky server
-        sockySendCommand({command: "insert", params: [editor.userId, request.vector.toString(), offset, diffText], lineId: editor.lineId});
+        sockySendCommand({command: "insert", params: [editor.userId, ""/*request.vector.toString()*/, offset, diffText], lineId: editor.lineId});
 
-	  		// Execute the request locally to update the internal buffer.        
+	  		// Execute the request locally to update the internal state.        
 	  		editor.state.execute(request);
         
         // increase offset
@@ -144,54 +156,113 @@ function invokeEditorUpdate() {
 	  	} else if (diffType == -1) {// Text has been removed.
         
         // Creates a new Segment instance given a user ID and a string.
-	  		var buffer = editor.state.buffer.slice(offset, offset + diffText.length);
-	  		var operation = new Operations.Delete(offset, buffer);
-	  		var request = new DoRequest(editor.userId, editor.state.vector, operation);
+	  		buffer = editor.state.buffer.slice(offset, offset + diffText.length);
+	  		operation = new Operations.Delete(offset, buffer);
+	  		request = new DoRequest(editor.userId, editor.state.vector, operation);
 
-	  		sockySendCommand({command: "delete", params: [editor.userId, request.vector.toString(), offset, diffText.length], lineId: editor.lineId});
+	  		sockySendCommand({command: "delete", params: [editor.userId, ""/*request.vector.toString()*/, offset, diffText.length], lineId: editor.lineId});
+
+	  		// Execute the request locally to update the internal state.        
 	  		editor.state.execute(request);
+
 	  	} else {
 	  		offset += diffText.length;
 	  	}
 	  }
-
-  	editor.previousContent = editor.currentContent = editor.area.text();
-	  //$("#buffer").html(editor.state.buffer.toHTML());
 	  
-	  lineId = editor.lineId;
-    saveChanges(lineId, editor.currentContent);
+	  console.log("My editor state:");
+	  console.dir(editor.state);
+
+    // update previous content state with cuttent content
+    editor.previousContent = editor.currentContent;
+	  
+	  // save changes
+    saveChanges(editor.lineId, editor.currentContent);
 }
 
 function processReceivedCommand(data) {
-  var currentEditor = getEditor($('#line-' + data.lineId));
-  console.log("Editor: ");
-  console.log(currentEditor)
+  
+  var op,request,executedRequest,buffer, currentEditor;
+
+  // if received command is newLine
+  
+  if(data.command == "newLine"){
+    if (data.uuid != uuid) {
+      l = $("#line-" + data.current_line.id)
+      l.after('<div id="line-'+ data.new_line.id +'" tabindex="-1" class="contentEditor" contenteditable="">' + data.new_line.text + '</div>');
+    }
+    return;
+  }
+  
+  if(data.command == "deleteLine"){
+    if (data.uuid != uuid) {
+      l = $("#line-" + data.deleted_line.id)
+      l.remove();
+    }
+    return;
+  }
+
+  editorNode = $('#line-' + data.lineId)
+  var currentEditor = getEditor(editorNode);
+
+  // if received back my changes from socky, then skip
+  if (data.params[0] == currentEditor.userId) return;
+
+  console.log("Editor:");
+  console.log(currentEditor);
+
+  
+  // prepare operation based on command type (insert or deletion)
   if(data.command == "insert") {
-			//if (data.params[0] != currentEditor.userId) {
-				// We have received an insert request from another user.
+		buffer = new Buffer([new Segment(data.params[0], data.params[3])]);
+		operation = new Operations.Insert(data.params[2], buffer);
+	} else{
+	  operation = new Operations.Delete(data.params[2], data.params[3]);
+	}
+	
+	console.log("Execute: " + data.command);
+	request = new DoRequest(data.params[0], new Vector(data.params[1]), operation);
+  executedRequest = currentEditor.state.execute(request); // state.execute - OT
+				
+	
+	if(executedRequest){
+  	console.log("Results: ")
+	  console.dir(executedRequest);
+    updateControl(executedRequest, currentEditor);
+  } else{
+    console.log("Did not execute any request!!! why???");
+  }
 
-				var buffer = new Buffer([new Segment(data.params[0], data.params[3])]);
-				var operation = new Operations.Insert(data.params[2], buffer);
-				var request = new DoRequest(data.params[0], new Vector(data.params[1]), operation);
-        
-				var executedRequest = currentEditor.state.execute(request); // state.execute - OT
-				updateControl(executedRequest, currentEditor);
-			//}
-	} else if (data.command == "delete") {
-			//if (data.params[0] != currentEditor.userId) {
-				// We have received a delete request from another user.
+}
 
-				var operation = new Operations.Delete(data.params[2], data.params[3]);
-				var request = new DoRequest(data.params[0], new Vector(data.params[1]), operation);
+function processDeleteOperation(operation) {
+	if (operation instanceof Operations.Split) {
+		// Delete operations might have been split; we therefore need to process
+		// them recursively.
+		return processDeleteOperation(operation.first) + processDeleteOperation(operation.second);
+	} else {
+		var textLength = operation.getLength();
 
-				var executedRequest = currentEditor.state.execute(request);
-				updateControl(executedRequest, currentEditor);
-			//}
+		if (operation.position < selectionStart) {
+			// Text was removed before our selection.
+			selectionStart -= textLength;
+			selectionEnd -= textLength;
+		} else if (operation.position >= selectionStart && operation.position < selectionEnd) {
+			// Text was removed inside our selection.
+			selectionEnd -= textLength;
+		}
 	}
 }
 
 // set sursor on end
 function updateControl(executedRequest, editor){
+
+    // if editor was remote (not focused by user, we'll just update it and dont care about cursor position
+    if(editor.type == "remote"){
+      updateFromBuffer(editor);
+      return;
+    }
+
 		if (executedRequest.operation instanceof Operations.Insert) {
 
 			// Backup cursor position
@@ -221,25 +292,6 @@ function updateControl(executedRequest, editor){
 
 			updateFromBuffer(editor);
 
-			function processDeleteOperation(operation) {
-				if (operation instanceof Operations.Split) {
-					// Delete operations might have been split; we therefore need to process
-					// them recursively.
-					return processDeleteOperation(operation.first) + processDeleteOperation(operation.second);
-				} else {
-					var textLength = operation.getLength();
-
-					if (operation.position < selectionStart) {
-						// Text was removed before our selection.
-						selectionStart -= textLength;
-						selectionEnd -= textLength;
-					} else if (operation.position >= selectionStart && operation.position < selectionEnd) {
-						// Text was removed inside our selection.
-						selectionEnd -= textLength;
-					}
-				}
-			}
-
 			processDeleteOperation(executedRequest.operation);
 
 			// Restore cursor position
@@ -248,15 +300,93 @@ function updateControl(executedRequest, editor){
 		}  
 }
 
+
 function updateFromBuffer(editor) {
   editor.previousContent = editor.currentContent = editor.state.buffer.toString();
-	//$("#buffer").html(editor.state.buffer.toHTML());
-  // set the current value to editor
   editor.area.text(editor.currentContent);
 }
 
+function onKeyPress(e){
+
+  if (e.keyCode == 13) {// enter
+    
+    e.preventDefault();
+    
+    data = {}
+    div = $(this);
+    
+    range = window.getSelection().getRangeAt(0);
+    
+    data.id = div.attr('id').replace('line-','');
+    data.text = div.text();
+    data.lineBreak = range.startOffset;
+      
+    $.ajax({
+      type: "post",
+      url: $('#editor').data('new'),
+      data: data,
+      dataType: "json",
+      success: function(data) {
+        l = $('#line-'+ data.current_line.id)
+        l.text(data.current_line.text);
+        l.after('<div id="line-'+ data.new_line.id +'" tabindex="-1" class="contentEditor" contenteditable="">' + data.new_line.text + '</div>');
+        l.blur();
+        $("#line-"+ data.new_line.id).focus();
+        
+        // send new line info via socket
+        
+        sockySendCommand({command: "newLine", current_line: data.current_line, new_line: data.new_line, uuid: uuid});  
+      },
+    });  
+    
+  }else  if (e.keyCode == 8) {// backspace
+
+    data = {}
+    div = $(this);
+    range = window.getSelection().getRangeAt(0);
+    console.log(range)
+    if(range.startOffset == 0){
+      e.preventDefault();
+      data.id = div.attr('id').replace('line-','');
+      
+      $.ajax({
+        type: "post",
+        url: $('#editor').data('destroy'),
+        data: data,
+        dataType: "json",
+        success: function(data) {
+          deleted_line = $('#line-'+ data.deleted_line.id)
+          deleted_line.remove();
+          
+          prev_line = $("#line-"+ data.prev_line.id);          
+          prev_line.focus();
+          prev_line.text(data.prev_line.text);
+          // trick to trigger socky send
+          prev_line.blur().focus();
+          
+          sockySendCommand({command: "deleteLine", deleted_line: data.deleted_line, uuid: uuid});  
+        },
+      });        
+
+    }
+    
+  } else{
+    console.log(e.keyCode);
+  }
+}
+
+/*
 function onKeyPress(event) {
-  if (event.keyCode == 13) {
+  if (event.keyCode == 13) { // enter
+  event.preventDefault();
+  
+  // "ala ma\n kota"
+  // pocz dokumentu (wstaw linii pierwszej)
+  
+  // rozdzielenie tekstu linii
+  
+  //nowa linia
+  
   data = {};
   p = $(this);
   if (p.hasClass('contentEditor')) {
@@ -267,21 +397,23 @@ function onKeyPress(event) {
         url: $('#editor').data('new'),
         data: data,
         dataType: "json",
-        success: function(line) {
-          '<p id="line-'+ line.id +'" class="contentEditor" contenteditable=""></p>';
+        success: function(data) {
+          $('#line-'+ data.prevId).after('<p id="line-'+ data.id +' class="contentEditor" contenteditable=""></p>');
+          $('#line-'+ data.id).focus();
         },
         error: function(data) {}
     });
   }
 }
+*/
 
 // start application
 jQuery(document).ready(function($) {
   initializeEditor();
   //jquery 1.7
-  $(document).on('blur', '.contentEditor', function() {deactivateEditor()});
   $(document).on('focus', '.contentEditor', function() {activateEditor($(this))});
-  $(document).on('keypress', '.contentEditor', onKeyPress);
+  $(document).on('blur', '.contentEditor', function() {deactivateEditor()});
+  $(document).on('keydown', '.contentEditor', onKeyPress);
   // blur sie konczy
   
 });

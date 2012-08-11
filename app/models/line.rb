@@ -5,13 +5,27 @@ class Line
   field :text, type: String
 
   # Relationships
-  has_one :next, :class_name => "Line"
-  has_one :prev, :class_name => "Line"
+  field :nextId, type: Moped::BSON::ObjectId
+  field :prevId, type: Moped::BSON::ObjectId
 
   # Relationships
   embedded_in :document
   
-  # Validations
-  #validates_presence_of :text
+  def next
+    getNP(nextId)
+  end
+  
+  def prev
+   getNP(prevId)
+  end
+  
+  private
+  def getNP (id)
+    if id
+      return document.lines.find(id)
+    else
+      return nil
+    end
+  end
 
 end

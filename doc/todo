@@ -17,8 +17,13 @@ autoryzacja usera
 
 dodac przypadek dodawania linii na poczatku dokumentu
 
+focus na nowo dodanej linii daje edytor is null
+
+usuwanie paragrafu
 
 koncepcyjny algo wypisywania dokumentu
+
+delete, shitf enter, strzałki
 
 array = array();
     foreach (document.lines as line){
@@ -39,3 +44,7 @@ array = array();
     
     while (line = line.next)
       line.text
+      
+      
+      kyrsor po backspace niech wraca gdzie trzeba a nie do poczatku (focus)
+      jak szybko zrobic enter miedzy wyrazami, to powiela sie rozdzielenie  

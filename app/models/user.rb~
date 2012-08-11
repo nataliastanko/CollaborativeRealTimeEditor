@@ -32,13 +32,17 @@ class User
 
   
   # Validations
-  validates_presence_of :username, :email, encrypted_password
-  validates_presence_of :username, :email
+  validates_presence_of :username, :email, :encrypted_password
   validates_uniqueness_of :username, :email, case_sensitive: false
   attr_accessible :email, :password, :password_confirmation, :remember_me, :username, :age
   
   def fullname
     "#{username}"
+  end
+  
+  # last 3 numbers from hash id (increment)
+  def numId
+    id.to_s.slice(-3,3)
   end
   
 end

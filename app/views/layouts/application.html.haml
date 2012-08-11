@@ -9,7 +9,8 @@
     = csrf_meta_tags
     - if current_user
       :javascript
-        var uid = "#{current_user.id}";
+        // fix numeric id
+        var uuid = 1#{current_user.numId}#{Time.now.to_i};
   %body{:class => params[:controller]}
     %div.container
       = render 'layouts/header'

@@ -9,3 +9,29 @@ tworzymy dokument - i zawsze jedna linie, zeby miec referencje, id, zeby wiedzie
 
 dzieki embedded wypiusanie wszystkich lines dokumentu odbywa sie szybciej niz np mysqlem pobranie k
 
+
+anithaly@work:~/Projects/studia/mgr/editor/socky-server$ thin -R config.ru -p3001 start
+>> Thin web server (v1.4.1 codename Chromeo)
+>> Maximum connections set to 1024
+>> Listening on 0.0.0.0:3001, CTRL+C to stop
+
+jinfinote issue:
+Klient wysyła zmiany do serwera socky, socky odpowiada wszystkim, ktorzy nasłuchują na kanał (dokumentu), wysyła również nadawcy, więc trzeba zapewnic, zeby nadawca ignorowala przychodzace zmiany od siebie.
+idiki do sledzenia zmian zrobionych przez konkretnego usera musi byc numeryczny (do vektora ze zmianami).
+
+
+dokument zbudowany jest z p paragrafów i osobnego pola na tytul
+
+
+1.9.3p194 :020 > n.prev = old
+Mongoid::Errors::MixedRelations: 
+Problem:
+  Referencing a(n) Line document from the Line document via a relational association is not allowed since the Line is embedded.
+Summary:
+  In order to properly access a(n) Line from Line the reference would need to go through the root document of Line. In a simple case this would require Mongoid to store an extra foreign key for the root, in more complex cases where Line is multiple levels deep a key would need to be stored for each parent up the hierarchy.
+Resolution:
+  Consider not embedding Line, or do the key storage and access in a custom manner in the application code.
+  
+  trzeba powiadomic usera, ze nowy paragraf - OT tego nie uwzglednia
+  Dodaje linie miedzy 5 i 6, wysylam to do all klientow przez socky (za linia 5). Jak poprawnie odswiezyc?
+  jak w linii jest tekst aaaabbbbccc, enterem rozdzielamy tekst - 2 paragrafy sa zmienione - stary i nowododany maja nowe tresci

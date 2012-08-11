@@ -23,4 +23,6 @@
           %td= document.updated_at.to_formatted_s :short
           %td= document.user.fullname
           %td= link_to 'Edytuj', edit_document_path(document)
-          %td= link_to 'x', document, confirm: 'Jesteś pewny?', method: :delete
+          %td
+            = form_for document, html: {method: :delete} do |f|
+              = f.submit 'x', class: "btn"

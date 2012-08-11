@@ -40,5 +40,10 @@ class User
     "#{username}"
   end
   
+  # last 3 numbers from hash id (incremented)
+  def numId
+    id.to_s.slice(-3,3)
+  end
+  
 end
 
