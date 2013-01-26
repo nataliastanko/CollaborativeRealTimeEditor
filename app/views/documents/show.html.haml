@@ -1,0 +1,8 @@
+%div.page-header
+  %h1 Edycja dokumentu
+  
+  %div
+  - line = @document.lines.first
+  - while line != nil do
+    %div.contentEditor{contentEditable: true, id: "line-#{line.id}"}= line.text
+    - line = line.next

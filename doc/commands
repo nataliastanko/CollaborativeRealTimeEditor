@@ -1,8 +1,0 @@
-
-w katalogu socky-server
-bundle install
-thin -R config.ru -p3001 start
-gem list
-eventmachine musi byc wiekszy niz 1.0.0.beta2
-bundle update zmienia locki
-

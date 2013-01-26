@@ -78,8 +78,7 @@ function getEditor(div) {
 
 // initialize Socky client to communicate over WebSockets
 function initializeSocky() {
-
-    socky = new Socky.Client('ws://localhost:3001/websocket/editor');
+    socky = new Socky.Client('ws://' + window.location.hostname + ':3001/websocket/editor');
     channel = socky.subscribe("presence-editor-channel", { read: true, write: true, data: { login: 'test' } });
 
     socky.bind("socky:subscribe:success", function() {

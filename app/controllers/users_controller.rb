@@ -5,12 +5,7 @@ class UsersController < ApplicationController
   def show
     @user = User.find(params[:id])
   end
-  
-  #def user_questionnaires
-  #  @user = User.find(params[:user_id])
-  #  @questionnaires = @user.questionnaires.all
-  #end
-  
+
   def index
     @users = User.all
   end

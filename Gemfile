@@ -7,7 +7,7 @@ gem 'haml-rails'
 gem 'socky-authenticator'
 
 group :assets do
-  gem 'sass-rails',   '~> 3.1.5'
+  gem 'sass-rails', '~> 3.2.3'
   gem 'uglifier', '>= 1.0.3'
 end
 
@@ -28,3 +28,4 @@ gem "devise", ">= 1.5.0"
 gem 'twitter-bootstrap-rails'
 
 gem 'capistrano'
+gem 'rvm-capistrano'

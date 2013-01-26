@@ -2,39 +2,42 @@
 class DocumentsController < ApplicationController
 
   before_filter :authenticate_user!
-  before_filter :find_document, :only => [:show, :save, :answers]
+  before_filter :find_document, :only => [:show, :save, :update, :answers, :invite, :share]
 
   # preview inly
   def show
-    #@document.questions.build #create one object
-  end
-
-  def save
-    answers = params[:answers].collect{ |a| a[1] }
-    answers.each do |answer_param|
-      
-      question = @document.questions.find(answer_param[:question_id])
-      question.answers.create({
-        :answer => answer_param[:answer],
-        :user_id => current_user.id,
-        :question_id => answer_param[:question_id]
-      })
-      
-    end    
-    @document.save    
-    redirect_to answers_document_path(@document)    
+    @document = Document.where({"$or"=>[{"user_id"=> current_user.id}, {"sharing_user_ids"=>current_user.id}]}).find(params[:id])
   end
   
   def index
-    @documents = @documents = Document.all
+    @documents = Document.where({"$or"=>[{"user_id"=> current_user.id}, {"sharing_user_ids"=>current_user.id}]})
   end
   
   def edit
-    @document = Document.find(params[:id])
+    @document = Document.where({"$or"=>[{"user_id"=> current_user.id}, {"sharing_user_ids"=>current_user.id}]}).find(params[:id])
   end
   
   def new
     @document = Document.new
+  end
+  
+  def share
+    @user = User.find(params[:user_id])
+    @document.sharing_users << @user
+    if @document.save
+      flash[:notice] = "Zaproszono użytkownika do dokumentu."
+      redirect_to documents_path
+      #redirect_to action: 'index'
+    else
+      flash.now[:error] = "Nie zaprosić użytkownika do tego dokumentu"
+      render action: 'invite'
+    end
+  end
+  
+   def invite
+    @sharnig_users = @document.sharing_user_ids
+    #@sharnig_users << current_user.id.to_s
+    @users = User.not_in(:_id => current_user)
   end
   
   def create
@@ -65,13 +68,21 @@ class DocumentsController < ApplicationController
   def update
     respond_to do |format|
      if @document.update_attributes(params[:document])
-        #format.html { redirect_to document_questions_path(@document), notice: "Zapisano zmiany dokumetu!" }
         format.json { head :ok }
+	format.js {head :ok}
      else
         #format.html { render action: "edit" }
         format.json { render json: @document.errors, status: :unprocessable_entity }
      end
    end 
+  end
+  
+  def destroy
+    @document = current_user.documents.find(params[:id])
+    if @document.destroy
+      flash[:notice] = "Dokument został usunięty."
+      redirect_to documents_path
+    end
   end
   
   private 

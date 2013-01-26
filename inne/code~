@@ -1,9 +1,0 @@
-
-  <div><%= f.label :password, "Hasło" %> <i>(pozostaw puste, jeśli nie chcesz zmieniać)</i><br />
-  <%= f.password_field :password %></div>
-
-  <div><%= f.label :password_confirmation, "Powtórzenie hasła" %><br />
-  <%= f.password_field :password_confirmation %></div>
-
-  <div><%= f.label :current_password, "Stare hasło" %> <i>(potrzebne do potwierdzenia zmian)</i><br />
-  <%= f.password_field :current_password %></div>

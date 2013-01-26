@@ -12,12 +12,12 @@ body > .container{
 }
 
 div.contentEditor {
-  border: 1px #ccc solid;
+/*  border: 1px #ccc solid;*/
   min-height: 15px;
-  padding: 10px;
-  margin: 0 0 10px 0;
+/*  padding: 10px;
+  margin: 0 0 10px 0;*/
   outline: none;
-  white-space: pre;
+ /* white-space: pre;*/
 }
 
 footer.footer{
@@ -35,4 +35,18 @@ div.hero-unit{
     font-size:42px;
     margin-bottom:10px;
   }
+}
+
+div#editor {
+  border: 1px #ccc solid;
+  padding: 10px;
+}
+
+table.table td {
+ vertical-align: middle;
+}
+
+td.action form {
+  margin: 0;
+  text-align: centerl
 }

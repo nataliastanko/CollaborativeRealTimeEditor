@@ -18,7 +18,7 @@
         - flash.each do |name, msg|
           - if name == :notice
             %div.alert.alert-info
-              %a.close ×
+              %a.close{data: {dismiss: "alert"}, href: "#"} &times;
               = raw msg              
           - else
             %div.alert.alert-error
@@ -28,5 +28,6 @@
         = yield
     
       = render 'layouts/footer'
+    =javascript_include_tag(:general)
     - if content_for? :javascripts
       = yield :javascripts

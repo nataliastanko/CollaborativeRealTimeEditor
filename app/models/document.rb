@@ -7,7 +7,8 @@ class Document
 
   # Relationships
   embeds_many :lines
-  belongs_to :user
+  belongs_to :user, inverse_of: "documents"
+  has_and_belongs_to_many :sharing_users, inverse_of: "shared_documens", class_name: "User"
   #belongs_to :folder
   
   # Validations

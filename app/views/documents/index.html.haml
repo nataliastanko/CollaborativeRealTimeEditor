@@ -13,6 +13,7 @@
         %th Data utworzenia
         %th Data modyfikacji
         %th Właściciel
+        %th Udostępnianie
         %th Edytuj
         %th Usuń
     %tbody
@@ -22,7 +23,9 @@
           %td= document.created_at.to_formatted_s :short
           %td= document.updated_at.to_formatted_s :short
           %td= document.user.fullname
+          %td= link_to 'Udostępnij', invite_document_path(document)
           %td= link_to 'Edytuj', edit_document_path(document)
-          %td
-            = form_for document, html: {method: :delete} do |f|
-              = f.submit 'x', class: "btn"
+          %td.action
+            - if current_user.id == document.user.id
+              = form_for document, html: {method: :delete} do |f|
+                = f.submit 'x', class: "btn"

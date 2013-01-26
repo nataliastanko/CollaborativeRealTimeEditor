@@ -28,8 +28,8 @@ class User
   field :email, type: String
   
   # Relationships
-  #has_many :questionnaires
-
+  has_many :documents, inverse_of: "user"
+  has_and_belongs_to_many :shared_documents, inverse_of: "sharing_users", class_name: "Document"
   
   # Validations
   validates_presence_of :username, :email, :encrypted_password
@@ -42,7 +42,7 @@ class User
   
   # last 3 numbers from hash id (incremented)
   def numId
-    id.to_s.slice(-3,3)
+    id.to_s.slice(-9,9).hex.to_i
   end
   
 end

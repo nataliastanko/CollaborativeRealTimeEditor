@@ -81,8 +81,6 @@ def destroy
   else 
     render json: current_line.errors, status: :unprocessable_entity  
   end
-  
-  
 end
 
 

@@ -1,15 +1,16 @@
 %header
-  %div.navbar
+  %div.navbar.navbar-inverse
     %div.navbar-inner
       %div.container{:style => "width:auto;"}
-        %a.brand Praca magisterska
-        %ul.nav
-          %li= link_to "Informacje", questionnaires_path
         %ul.nav.pull-right
+          %li
+            %a{href: "/"} Strona główna
           - if user_signed_in?
             %li= link_to('Dokumenty', user_documents_path(current_user))  
             %li= link_to('Edycja konta', edit_user_path(current_user))    
+            %li= link_to "Informacje", project_info_path
             %li= link_to('Wyloguj się', destroy_user_session_path, :method=>'delete')
           - else
             %li= link_to('Zaloguj się', new_user_session_path)   
+            %li= link_to "Informacje", project_info_path
             %li= link_to('Rejestracja', new_user_registration_path)

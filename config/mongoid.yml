@@ -70,11 +70,13 @@ test:
 production:
   sessions:
       default:
-        host: 127.0.0.1
-        port: 27017
-        username: anithaly
-        password: super_secure_password_x54
-        database: real_time_editor
+        database: real_time_editor_test
+        hosts: 
+          - localhost:27017
+        consistency: :strong
+        #username: anithaly
+        #password: super_secure_password_x54
+        #database: real_time_editor
         # slaves:
         #   - host: slave1.local
         #     port: 27018

@@ -1,0 +1,12 @@
+%h2 Udostępnij dokument "#{@document.title}":
+- if @users.blank?
+  %p Brak wyników
+- else
+  %ul
+    - @users.each do |user|
+      %li
+        == #{user.username} - 
+        - if @document.sharing_user_ids.include? user.id
+          Udostępniono
+        - else
+          = link_to "udostępnij" , share_document_path(@document.id, user.id)

@@ -3,7 +3,7 @@
 
 %p Zalogowany jako #{current_user.username}
 
-= form_for(@document) do |f|
+= form_for(@document, remote: true) do |f|
   
   %div.field
     = f.label :title, "Tytuł"
@@ -23,4 +23,4 @@
 
 
 - content_for :javascripts do
-  = javascript_include_tag :application
+  = javascript_include_tag :document
