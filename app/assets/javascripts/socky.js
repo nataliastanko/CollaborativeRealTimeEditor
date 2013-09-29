@@ -413,7 +413,4 @@ jQuery(document).ready(function($) {
   $(document).on('focus', '.contentEditor', function() {activateEditor($(this))});
   $(document).on('blur', '.contentEditor', function() {deactivateEditor()});
   $(document).on('keydown', '.contentEditor', onKeyPress);
-  // blur sie konczy
-  
 });
-

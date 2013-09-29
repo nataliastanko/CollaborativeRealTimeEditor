@@ -1,1 +1,89 @@
-h1. Współdzielony edytor czasu rzeczywistego
+h1. Real-time text editor (nEditor)
+
+Using *Ruby on Rails 3, MongoDB, Websocket*
+
+Diploma dissertation 2012, Jagiellonian University in Kraków
+"Sharing and editing documents in the cloud" (EN)
+"Współdzielony edytor czasu rzeczywistego" (PL)
+
+The object of this study was to create a tool - a text editor that runs in a web browser. Finished application allows for parallel and conflictless work on text documents stored in the cloud. It uses recent popular technologies like Ruby on Rails, MongoDB and Websocket.
+
+h2. Dependencies
+
+* Ruby >= 1.9.3
+* RubyGems >= 1.8.24
+* Ruby on Rails >= 3.2.8
+* MongoDB >= 2.2.0
+
+h2. How it works
+
+* using attribute contentEditable
+* no WYSIWYG
+* no paging
+
+h5. Porcjowanie informacji w bazie danych. Struktura wyświetlanego dokumentu.
+
+Dokument podzielony jest na akapity, a każdy
+akapit jest traktowany jako jedna linia i jedna porcja informacji. Każdy akapit jest reprezentowany jest jako jeden element osadzony w kolekcji obiektów bazy MongoDB. Do wypisywania i zarządzania
+liniami korzystam z właściwości listy dwukierunkowej. Poszczególne akapity są elementami
+listy dwukierunkowej, więc każdy element ma swojego poprzednika i następnika – właściwość
+`id` innej linii. Koniec linii wyznaczany jest przez klawisz enter. Utworzenie nowej linii oraz
+zmiana jej następników i poprzedników ma miejsce po każdym wciśnięciu klawisza enter.
+W ten sposób w momencie usunięcia bądź dodania nowej linii edytujemy maksymalnie
+3 rekordy, zamiast np. przenumerowywać wszystkie linie w dokumencie. Nowa linia jest
+nowym obiektem w bazie danych, jest także otoczona nowym tagiem HTML.
+Każda taka linia ma własną instancję klasy jinfinote i jest kontrolowana przez
+transformację operacyjną. Jest również 1 porcją znaków przeszukiwanych w celu wykrycia
+zmian. Oczekiwanie na wysłanie zmian występuje tylko na linii aktualnie edytowanej, czyli na
+tej, gdzie aktywny jest kursor tekstu.
+
+h5. Odświeżanie dokumentu niezależnie od wysyłanych
+zmian przez użytkownika
+
+Websocket.
+Do obsługi Websocket wykorzystuję bibliotekę socky. Socky została
+napisana w JavaScript oraz w Ruby:
+* biblioteka JavaScript - po stronie klienta jako klasa, która upraszcza korzystanie
+z Websocket gotowymi metodami do wykorzystania wedle uznania
+* socky server – serwer Websocket napisany w Ruby, działa w oparciu o server
+thin
+https://github.com/socky/
+
+h4. Konflikty i sklejanie tekstu
+
+Zastosowanie algorytmu Transformacji Operacyjnej (OT).
+http://en.wikipedia.org/wiki/Operational_transformation
+
+W mojej aplikacji został zastosowany w postaci biblioteki jinfinote. 
+https://github.com/sveith/jinfinote
+
+Javascript, using google-diff-match-patch.
+https://code.google.com/p/google-diff-match-patch/
+
+nEditor przechwytuje znaki wprowadzane z klawiatury (enter, backspace), by
+upodobnić ich funkcjonalność do działania obserwowanego w zwyczajnych edytorach
+tekstu. W przypadku tego edytora, aby dodawać i usuwać nowe akapity.
+
+h2. License
+
+The MIT License
+
+Copyright (c) 2012, Natalia Stanko
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
